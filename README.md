@@ -234,20 +234,78 @@ pip install -e .
 ### Core Methods & Scenarios / 核心方法与适用场景
 
 - 方法A：全局mGLI描述符（结构对级别）
-  - 适用于处理 蛋白质-配体、蛋白质-核酸 等结构对的整体拓扑强度摘要。
+  - 输入：`Structure` A/B（蛋白质/核酸/小分子），`MgliConfig`。
+  - 输出：`np.ndarray`，形状 `(D,)` 的整体拓扑摘要向量。
+  - 典型用途：结构对相似性、分类/回归模型输入、检索/打分。
+  - 参数要点：`distance_bins`/`use_rbf` 控制尺度；`group_mode_A/B` 控制分组；`signed` 控制是否保留手性；性能相关 `max_distance`、`n_jobs`、`use_gpu`。
   - 接口：`features.descriptor.global_mgli_descriptor(structA, structB, config)`。
+
 - 方法B：节点级mGLI特征（图节点通道）
-  - 适用于解决 节点特征增强需求（结合PLM/几何嵌入），用于DTI/PPI图模型。
+  - 输入：`Structure` A/B，`MgliConfig`。
+  - 输出：`np.ndarray` 或字典结构（视实现），形状约 `(N_nodes, C)`；可与PLM/GeoGNN嵌入拼接。
+  - 典型用途：DTI/PPI 图模型的节点特征增强，作为额外的3D拓扑通道。
+  - 参数要点：分组策略影响通道维度（如残基类别、元素/官能团）；同样支持 `max_distance`、`n_jobs`、`use_gpu`。
   - 接口：`features.node_features.node_mgli_features(structA, structB, config)`。
+
 - 方法C：成对mGLI矩阵（跨注意力/边特征优化方案）
-  - 针对 交叉注意力 的偏置或边权，支持距离剪枝、并行与GPU。
+  - 输入：`Structure` A/B，`MgliConfig`。
+  - 输出：`np.ndarray`，形状 `(N_A, N_B)` 的节点对矩阵，用于跨注意力偏置或边特征。
+  - 典型用途：Cross-attention GNN 的 bias/edge weight，或匹配/对齐任务的相似度基底。
+  - 性能要点：支持 `max_distance` 距离剪枝、`n_jobs` 行并行、`use_gpu` 的PyTorch批量GLI。
   - 接口：`features.pairwise.pairwise_mgli_matrix(structA, structB, config)`。
+
 - 方法D：拓扑(PH)特征直方图（可选）
-  - 适用于 特定场景 的几何-拓扑融合（如口袋识别、复杂界面分析）。
+  - 输入：距离矩阵（来自结构对或子结构），`MgliConfig`（用于直方图参数）。
+  - 输出：`np.ndarray` 的PH直方图向量，可与mGLI特征级联。
+  - 典型用途：几何-拓扑融合，如口袋识别、复合物界面模式分析、鲁棒结构摘要。
+  - 依赖说明：需要 `ripser`；未安装时对应接口抛出 ImportError。
   - 接口：`features.topo_features.ph_histogram_features(distance_matrix, config)`。
+
 - 方法E：任务封装（DTI/PPI/MTI）
-  - 快速落地典型任务的批量特征计算与命名缓存。
+  - 输入：文件路径与任务参数（如 `pdb_path`、`sdf_path`、`chain_id`），`MgliConfig`。
+  - 输出：包含全局/节点/成对矩阵等的特征字典，支持 `utils/cache.CacheManager` 的命名缓存持久化。
+  - 典型用途：一键批量特征计算与落盘，统一命名为 `物质名_方法_维度.npy` 便于复用。
+  - 配置透传：`max_distance`、`n_jobs`、`use_gpu` 等性能参数在任务接口中向下透传。
   - 接口：`tasks.dti.compute_dti_features(...)` 等。
+
+#### Method Differences & Selection / 方法差异与选择建议
+
+- 方法A（全局）
+  - 粒度：结构对级别；输出 `(D,)` 一维摘要向量。
+  - 适用：检索、分类/回归、全局评分与排序。
+  - 优势：维度低、稳健，易与传统ML管线对接。
+  - 局限：不提供节点或边级细节，难直接用于注意力。
+
+- 方法B（节点级）
+  - 粒度：节点；输出约 `(N_nodes, C)`。
+  - 适用：图模型节点通道，融合 PLM/GeoGNN 嵌入。
+  - 优势：保留局部差异，便于多模态特征拼接。
+  - 局限：维度随分组增长，需规范化与正则。
+
+- 方法C（成对矩阵）
+  - 粒度：节点对；输出 `(N_A, N_B)`。
+  - 适用：跨注意力偏置/边权，相似度匹配与对齐。
+  - 优势：最细粒度，信息最丰富，适合注意力机制。
+  - 性能：计算量最高；可通过 `max_distance`、`n_jobs`、`use_gpu` 显著加速。
+
+- 方法D（PH直方图）
+  - 输入：距离矩阵；输出拓扑直方图向量。
+  - 适用：几何-拓扑融合（口袋识别、界面模式摘要），对噪声/变形更鲁棒。
+  - 依赖：需安装 `ripser`；与mGLI联合使用更佳。
+  - 局限：不直接体现GLI手性与方向性，需要与mGLI特征互补。
+
+- 方法E（任务封装）
+  - 作用：一键生成全局/节点/成对等特征并落盘（统一命名与缓存）。
+  - 适用：快速集成与批处理，减少样板代码与重复计算。
+  - 优势：封装配置透传与命名规范，便于复用与协作。
+  - 局限：灵活性不如直接调用底层接口，定制时需回到A–D方法。
+
+选择建议：
+- 需要全局摘要与检索 → 选 方法A。
+- 构建图模型并增强节点通道 → 选 方法B，并与PLM/GeoGNN拼接。
+- 需要跨注意力或边权/匹配 → 选 方法C；优先启用 `max_distance` 与并行/GPU。
+- 希望鲁棒的拓扑摘要或几何-拓扑融合 → 选 方法D，并与mGLI联合。
+- 快速落地与批处理 → 选 方法E（任务封装）。
 
 ### Basic Example / 基础示例
 
@@ -388,25 +446,7 @@ dti_feats = compute_dti_features(
 
 ---
 
-## 7. Caveats & TODO / 注意事项和待办
-
-* This library is intended as a **research prototype** / 本库旨在作为**研究原型**:
-
-  * efficiency is not highly optimized yet (GLI is O(#segments²) in the worst case)
-    效率尚未高度优化（GLI在最坏情况下是O(#segments²)）
-  * some geometric heuristics (ring detection, nucleic acid parsing) are simplified and should be refined for production use
-    一些几何启发式方法（环检测、核酸解析）被简化，应在生产使用中进一步优化
-
-* You are encouraged to / 建议您：
-
-  * adjust distance bins / RBF parameters to your task
-    根据您的任务调整距离分箱/RBF参数
-  * design more nuanced groupings (e.g. binding pocket residues vs non-pocket)
-    设计更细致的分组（如结合口袋残基vs非口袋残基）
-  * integrate with your causal / adversarial training pipeline to debias abundance
-    与您的因果/对抗训练流程集成以消除丰度偏差
-
----
+ 
 
 ## 8. Project Structure / 项目结构
 
