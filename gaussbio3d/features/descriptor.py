@@ -14,7 +14,7 @@ from typing import Dict, Tuple, List
 import numpy as np
 
 from ..core.geometry import Structure, Node
-from ..core.gli import compute_pairwise_node_gli
+from ..core.pairwise_gli import compute_pairwise_node_gli
 from ..config import MgliConfig
 
 
@@ -163,7 +163,13 @@ def global_mgli_descriptor(
 
     # Compute pairwise node GLI and distances / 计算成对节点GLI和距离
     gij, rij = compute_pairwise_node_gli(
-        struct_A, struct_B, signed=config.signed, agg="mean"
+        struct_A,
+        struct_B,
+        signed=config.signed,
+        agg="mean",
+        max_distance=getattr(config, "max_distance", None),
+        n_jobs=getattr(config, "n_jobs", 1),
+        use_gpu=getattr(config, "use_gpu", False),
     )  # (N_A, N_B), (N_A,N_B)
 
     # Build group indices / 构建组索引

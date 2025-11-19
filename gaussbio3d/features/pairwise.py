@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import numpy as np
 from ..core.geometry import Structure
-from ..core.gli import compute_pairwise_node_gli
+from ..core.pairwise_gli import compute_pairwise_node_gli
 
 
 def pairwise_mgli_matrix(
@@ -21,6 +21,9 @@ def pairwise_mgli_matrix(
     struct_B: Structure,
     signed: bool = False,
     agg: str = "mean",
+    max_distance: float | None = None,
+    n_jobs: int = 1,
+    use_gpu: bool = False,
 ) -> np.ndarray:
     """
     Compute pairwise node-level mGLI matrix between structure A and B.
@@ -45,6 +48,12 @@ def pairwise_mgli_matrix(
         mGLI值的(N_A, N_B)矩阵
     """
     gij, _ = compute_pairwise_node_gli(
-        struct_A, struct_B, signed=signed, agg=agg
+        struct_A,
+        struct_B,
+        signed=signed,
+        agg=agg,
+        max_distance=max_distance,
+        n_jobs=n_jobs,
+        use_gpu=use_gpu,
     )
     return gij

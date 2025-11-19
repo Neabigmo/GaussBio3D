@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import numpy as np
 from ..core.geometry import Structure
-from ..core.gli import compute_pairwise_node_gli
+from ..core.pairwise_gli import compute_pairwise_node_gli
 from ..config import MgliConfig
 from .descriptor import _compute_radial_weights
 
@@ -63,7 +63,13 @@ def node_mgli_features(
     """
     # Compute pairwise GLI and distances / 计算成对GLI和距离
     gij, rij = compute_pairwise_node_gli(
-        struct_A, struct_B, signed=config.signed, agg="mean"
+        struct_A,
+        struct_B,
+        signed=config.signed,
+        agg="mean",
+        max_distance=getattr(config, "max_distance", None),
+        n_jobs=getattr(config, "n_jobs", 1),
+        use_gpu=getattr(config, "use_gpu", False),
     )  # (N_A,N_B), (N_A,N_B)
     
     # Compute radial weights / 计算径向权重

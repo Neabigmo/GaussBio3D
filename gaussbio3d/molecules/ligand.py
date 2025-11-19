@@ -46,47 +46,8 @@ class Ligand(Structure):
         Ligand
             Ligand structure / 配体结构
         """
-        try:
-            mol = molio.load_mol_from_sdf(path)
-            return cls._from_rdkit_mol(mol, source=f"sdf:{path}")
-        except Exception:
-            # Fallback: minimal SDF parser without RDKit
-            coords, elements, bonds = molio.simple_parse_sdf_v2000(path)
-            nodes: List[Node] = []
-            for i, (coord, elem) in enumerate(zip(coords, elements)):
-                nodes.append(
-                    Node(
-                        id=i,
-                        coord=np.asarray(coord, dtype=float),
-                        element=elem,
-                        group=elem,
-                        metadata=dict(source=f"sdf:{path}"),
-                    )
-                )
-            struct = cls(nodes=nodes, curves=[], node_segments={}, metadata={"type": "ligand", "source": f"sdf:{path}"})
-            for (i, j) in bonds:
-                coord_i = struct.nodes[i].coord
-                coord_j = struct.nodes[j].coord
-                midpoint = 0.5 * (coord_i + coord_j)
-                seg1 = Segment(
-                    start=coord_i,
-                    end=midpoint,
-                    start_node_id=i,
-                    end_node_id=None,
-                    start_type=struct.nodes[i].element,
-                    end_type=struct.nodes[j].element,
-                )
-                seg2 = Segment(
-                    start=coord_j,
-                    end=midpoint,
-                    start_node_id=j,
-                    end_node_id=None,
-                    start_type=struct.nodes[j].element,
-                    end_type=struct.nodes[i].element,
-                )
-                curve = Curve(segments=[seg1, seg2], curve_type="bond")
-                struct.add_curve(curve)
-            return struct
+        mol = molio.load_mol_from_sdf(path)
+        return cls._from_rdkit_mol(mol, source=f"sdf:{path}")
 
     @classmethod
     def from_mol2(cls, path: str) -> "Ligand":

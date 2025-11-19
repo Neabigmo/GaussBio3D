@@ -3,8 +3,9 @@ Configuration module for mGLI feature computation
 mGLI特征计算的配置模块
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional
+from dataclasses import dataclass, field, asdict
+from typing import List, Optional, Any, Dict
+import json
 
 
 @dataclass
@@ -69,3 +70,18 @@ class MgliConfig:
     )
     group_mode_A: str = "element"
     group_mode_B: str = "element"
+
+    # Performance and execution options / 性能与执行选项
+    use_gpu: bool = False
+    max_distance: Optional[float] = None
+    n_jobs: int = 1
+
+    def to_json(self) -> str:
+        """Serialize configuration to JSON string / 将配置序列化为JSON字符串"""
+        return json.dumps(asdict(self))
+
+    @staticmethod
+    def from_json(s: str) -> "MgliConfig":
+        """Create configuration from JSON string / 从JSON字符串创建配置"""
+        data: Dict[str, Any] = json.loads(s)
+        return MgliConfig(**data)

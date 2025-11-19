@@ -14,12 +14,11 @@ authors = [
 dependencies = [
   "numpy>=1.20.0",
   "biopython>=1.79",
+  "rdkit-pypi>=2021.9.1",
+  "tqdm>=4.66",
 ]
 
-[project.optional-dependencies]
-chem = [
-  "rdkit-pypi>=2021.9.1",
-]
+# No optional dependencies; RDKit is required for release
 
 [tool.setuptools]
 include-package-data = true

@@ -126,6 +126,37 @@ For Jupyter notebooks / 用于Jupyter notebooks:
 
 ```bash
 pip install jupyter ipython
+
+### GPU & Topology (Optional) / GPU与拓扑（可选）
+
+To enable GPU acceleration (PyTorch) and PH topology features, install optional packages / 如需启用GPU加速（PyTorch）与PH拓扑特性，请安装可选包：
+
+```bash
+# Install optional dependencies individually / 单独安装
+pip install numba ripser
+
+# Install PyTorch (choose CUDA or CPU per your environment) / 安装PyTorch（按环境选择CUDA或CPU）
+# CUDA 12.1 example / CUDA 12.1示例：
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+
+# Or CPU-only / 或仅CPU：
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+# Alternatively, install from optional requirements file / 或通过可选依赖文件安装
+pip install -r requirements-optional.txt
+```
+
+After installation, set in config to use these features / 安装后在配置中启用：
+
+```python
+from gaussbio3d.config import MgliConfig
+cfg = MgliConfig(max_distance=8.0, n_jobs=4, use_gpu=True)
+```
+
+Optional packages summary / 可选包摘要：
+- `numba`：JIT优化部分CPU路径（可选）
+- `torch`：启用GPU后端（可选）
+- `ripser`：持久同调（PH）特性（可选）
 ```
 
 ---

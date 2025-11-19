@@ -1,0 +1,12 @@
+# Optional dependencies for GPU and Topology features / 用于GPU与拓扑特性的可选依赖
+# Install with: pip install -r requirements-optional.txt
+
+# JIT acceleration / JIT加速
+numba>=0.59
+
+# Persistent Homology (PH) / 持久同调
+ripser>=0.6.4
+
+# PyTorch (choose CUDA or CPU index per environment) / 按环境选择CUDA或CPU索引
+# Default placeholder; prefer using official index-url as shown in INSTALL.md
+torch>=2.2.0

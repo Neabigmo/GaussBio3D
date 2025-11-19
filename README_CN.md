@@ -97,20 +97,33 @@ hₖ = Σᵢⱼ φₖ(rᵢⱼ) · f(gᵢⱼ)
 
 ## 4. 安装和依赖
 
-需要：
+GaussBio3D **强制依赖 RDKit**（用于小分子 I/O：SDF/MOL2/SMILES），以及 **Biopython**（用于 PDB/mmCIF 解析）。
+
+必须依赖：
 
 - Python 3.9+
 - `numpy`
-- `rdkit` (用于SDF/MOL2/SMILES解析)
-- `biopython` (用于PDB/mmCIF解析)
+- `rdkit`
+- `biopython`
+- `tqdm`（进度条）
 
-安装：
+推荐安装方式（Windows/macOS/Linux，Conda）：
 
 ```bash
-pip install numpy biopython rdkit-pypi
+conda install -c conda-forge rdkit
+pip install gaussbio3d
+pip install numba  # 可选，JIT加速
 ```
 
-或从源码安装：
+若仅使用 pip 并且你的平台可用 RDKit 轮子：
+
+```bash
+pip install rdkit-pypi
+pip install gaussbio3d
+pip install numba  # 可选，JIT加速
+```
+
+从源码安装：
 
 ```bash
 git clone https://github.com/yourusername/GaussBio3D
@@ -145,6 +158,22 @@ config = MgliConfig(
 # 计算全局描述符
 feat = global_mgli_descriptor(prot, lig, config)
 print("特征形状:", feat.shape)
+```
+
+快速 DTI 示例：
+
+```python
+from gaussbio3d.tasks.dti import compute_dti_features
+from gaussbio3d.config import MgliConfig
+
+cfg = MgliConfig()
+feats = compute_dti_features(
+    pdb_path="examples/target.pdb",  # 支持 .pdb 或 .cif
+    sdf_path="examples/drug.sdf",
+    chain_id="A",
+    config=cfg,
+)
+print({k: v.shape for k, v in feats.items()})
 ```
 
 ### 5.2 DTI模型的节点级mGLI特征
@@ -254,6 +283,16 @@ GaussBio3D/
   * 与因果/对抗训练流程集成以消除丰度偏差
 
 ---
+
+## 8.1 性能与拓扑扩展
+
+- 距离剪枝：在 `MgliConfig.max_distance` 设置裁剪阈值屏蔽远距离对，大幅降低计算量。
+- 分块并行：在 `MgliConfig.n_jobs` 设置线程数，对节点维度并行加速。
+- GPU后端：设置 `MgliConfig.use_gpu=True` 启用 PyTorch 张量广播（需安装 `torch` 与CUDA）。
+- 拓扑(PH)：`features/topo_features.py` 提供基于 `ripser` 的PH直方图并可与mGLI拼接。
+- 缓存与命名：`utils/cache.py` 支持持久化中间结果，输出遵循 `物质名_方法_维度.npy` 规范。
+
+可选依赖：`numba`（JIT）、`torch`（GPU）、`ripser`（PH）。
 
 ## 9. 许可证
 

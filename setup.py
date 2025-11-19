@@ -33,6 +33,8 @@ setup(
     install_requires=[
         "numpy>=1.20.0",
         "biopython>=1.79",
+        "rdkit-pypi>=2021.9.1",
+        "tqdm>=4.66",
     ],
     extras_require={
         "dev": [
@@ -40,9 +42,6 @@ setup(
             "pytest-cov>=2.0",
             "black>=21.0",
             "flake8>=3.9",
-        ],
-        "chem": [
-            "rdkit-pypi>=2021.9.1",
         ],
     },
 )

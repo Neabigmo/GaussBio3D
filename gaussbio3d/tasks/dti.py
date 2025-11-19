@@ -74,7 +74,15 @@ def compute_dti_features(
     global_feat = global_mgli_descriptor(prot, lig, config)
     prot_node_feat = node_mgli_features(prot, lig, config)
     lig_node_feat = node_mgli_features(lig, prot, config)
-    pairwise_mat = pairwise_mgli_matrix(prot, lig, signed=config.signed, agg="mean")
+    pairwise_mat = pairwise_mgli_matrix(
+        prot,
+        lig,
+        signed=config.signed,
+        agg="mean",
+        max_distance=getattr(config, "max_distance", None),
+        n_jobs=getattr(config, "n_jobs", 1),
+        use_gpu=getattr(config, "use_gpu", False),
+    )
 
     return dict(
         global_feat=global_feat,

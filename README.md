@@ -174,22 +174,126 @@ This supports / 这支持：
 
 ## 4. Installation & Dependencies / 安装和依赖
 
-This is a prototype layout. You'll need / 这是一个原型布局，您需要：
+GaussBio3D **requires RDKit** for small-molecule I/O (SDF/MOL2/SMILES) and **requires Biopython** for PDB/mmCIF parsing.
+GaussBio3D **强制依赖 RDKit**（用于小分子 I/O：SDF/MOL2/SMILES）以及 **Biopython**（用于 PDB/mmCIF 解析）。
+
+Required / 必需：
 
 - Python 3.9+
 - `numpy`
-- `rdkit` (for SDF/MOL2/SMILES parsing / 用于SDF/MOL2/SMILES解析)
-- `biopython` (for PDB/mmCIF parsing / 用于PDB/mmCIF解析)
+- `rdkit`
+- `biopython`
+- `tqdm` (progress bars)
 
-Install / 安装：
+Recommended installation on Windows/macOS/Linux via Conda（推荐方式）：
 
 ```bash
-pip install numpy biopython rdkit-pypi
+conda install -c conda-forge rdkit
+pip install gaussbio3d
+pip install numba  # optional JIT acceleration
 ```
 
-(Or your preferred RDKit build / 或您偏好的RDKit构建版本)
+If you prefer pip-only and have an RDKit wheel available for your platform:
+若仅使用 pip 并且你的平台可用 RDKit 轮子：
+
+```bash
+pip install rdkit-pypi
+pip install gaussbio3d
+pip install numba  # optional JIT acceleration
+```
+
+From source / 从源码安装：
+
+```bash
+git clone https://github.com/yourusername/GaussBio3D
+cd GaussBio3D
+pip install -e .
+```
 
 ---
+
+## Quick Start / 快速开始
+
+### Environment & Install / 环境与安装
+
+- Python `3.9+`，支持 Windows / macOS / Linux。
+- 必需依赖：`numpy`、`rdkit`、`biopython`、`tqdm`。
+- 推荐安装：
+  - Conda 安装 RDKit：`conda install -c conda-forge rdkit`
+  - 安装包：`pip install gaussbio3d`
+  - 可选加速：`pip install numba`（CPU JIT）、`pip install ripser`（PH）、`pip install torch`（GPU，按环境选择 CUDA/CPU 索引）。
+- 源码安装：
+  ```bash
+  git clone https://github.com/yourusername/GaussBio3D
+  cd GaussBio3D
+  pip install -e .
+  # 可选特性一键安装
+  pip install -r GaussBio3D/requirements-optional.txt
+  ```
+
+### Core Methods & Scenarios / 核心方法与适用场景
+
+- 方法A：全局mGLI描述符（结构对级别）
+  - 适用于处理 蛋白质-配体、蛋白质-核酸 等结构对的整体拓扑强度摘要。
+  - 接口：`features.descriptor.global_mgli_descriptor(structA, structB, config)`。
+- 方法B：节点级mGLI特征（图节点通道）
+  - 适用于解决 节点特征增强需求（结合PLM/几何嵌入），用于DTI/PPI图模型。
+  - 接口：`features.node_features.node_mgli_features(structA, structB, config)`。
+- 方法C：成对mGLI矩阵（跨注意力/边特征优化方案）
+  - 针对 交叉注意力 的偏置或边权，支持距离剪枝、并行与GPU。
+  - 接口：`features.pairwise.pairwise_mgli_matrix(structA, structB, config)`。
+- 方法D：拓扑(PH)特征直方图（可选）
+  - 适用于 特定场景 的几何-拓扑融合（如口袋识别、复杂界面分析）。
+  - 接口：`features.topo_features.ph_histogram_features(distance_matrix, config)`。
+- 方法E：任务封装（DTI/PPI/MTI）
+  - 快速落地典型任务的批量特征计算与命名缓存。
+  - 接口：`tasks.dti.compute_dti_features(...)` 等。
+
+### Basic Example / 基础示例
+
+```python
+from gaussbio3d.molecules import Protein, Ligand
+from gaussbio3d.config import MgliConfig
+from gaussbio3d.features.descriptor import global_mgli_descriptor
+from gaussbio3d.features.pairwise import pairwise_mgli_matrix
+
+# 加载结构
+prot = Protein.from_pdb("examples/target.pdb", chain_id="A")
+lig  = Ligand.from_sdf("examples/drug.sdf")
+
+# 配置：启用距离剪枝/并行/GPU（按需）
+cfg = MgliConfig(max_distance=8.0, n_jobs=4, use_gpu=False)
+
+# 全局描述符
+desc = global_mgli_descriptor(prot, lig, cfg)
+print("global shape:", desc.shape)
+
+# 成对矩阵（用于交叉注意力）
+M = pairwise_mgli_matrix(prot, lig, cfg)
+print("pairwise shape:", M.shape)
+```
+
+### FAQ / 常见问题解答
+
+- RDKit 安装失败怎么办？
+  - Windows/macOS/Linux 推荐 `conda install -c conda-forge rdkit`；或使用 `rdkit-pypi` 轮子。
+- 没有GPU可以使用吗？
+  - 可以。未安装 `torch` 或无CUDA时会自动走CPU路径；`use_gpu=True` 仅在 `torch` 可用时启用。
+- 如何加速大规模结构对计算？
+  - 设置 `max_distance` 做距离剪枝；`n_jobs` 并行行处理；按需启用 GPU；使用 `utils/cache.py` 复用中间结果。
+- PDB/mmCIF 链选择问题？
+  - 通过 `Protein.from_pdb(path, chain_id="A")` 指定链；mmCIF同理。
+- 输出文件命名如何统一？
+  - 使用 `utils.cache.format_name(material, method, dim)` 与 `CacheManager.save_named(...)`，生成 `物质名_方法_维度.npy`。
+
+### Advanced Guidance & Best Practices / 进阶指引与最佳实践
+
+- 距离尺度设计：根据任务选择 `distance_bins` 或 RBF；近距强调强拓扑、远距捕获全局趋势。
+- 分组策略：蛋白质用残基类别/功能分类，小分子用元素/官能团；避免高维稀疏造成噪声。
+- 计算加速：优先启用 `max_distance`；`n_jobs` 在节点维度并行；GPU 适合大矩阵批量GLI。
+- 特征融合：将节点级mGLI与PLM/GeoGNN嵌入拼接，作为额外的3D拓扑通道。
+- 缓存与复用：对距离矩阵、成对GLI等中间结果做持久化缓存，减少重复计算。
+- 可复现性：固定随机种子、记录配置参数与依赖版本；在CI中做小样本回归测试。
 
 ## 5. Basic Usage / 基本用法
 
@@ -216,6 +320,22 @@ config = MgliConfig(
 # Compute global descriptor / 计算全局描述符
 feat = global_mgli_descriptor(prot, lig, config)
 print("Feature shape:", feat.shape)
+```
+
+Quick DTI example / 快速 DTI 示例：
+
+```python
+from gaussbio3d.tasks.dti import compute_dti_features
+from gaussbio3d.config import MgliConfig
+
+cfg = MgliConfig()
+feats = compute_dti_features(
+    pdb_path="examples/target.pdb",  # supports .pdb or .cif
+    sdf_path="examples/drug.sdf",
+    chain_id="A",
+    config=cfg,
+)
+print({k: v.shape for k, v in feats.items()})
 ```
 
 ### 5.2 Node-level mGLI Features for a DTI Model / DTI模型的节点级mGLI特征
@@ -321,6 +441,16 @@ GaussBio3D/
 ```
 
 ---
+
+## Performance & Topology Extensions / 性能与拓扑扩展
+
+- Distance pruning: set `MgliConfig.max_distance` to mask far pairs.
+- Parallel rows: set `MgliConfig.n_jobs` for thread-based parallel over nodes.
+- GPU backend: set `MgliConfig.use_gpu=True` to enable PyTorch tensors (requires `torch` and CUDA).
+- Topology (PH): `features/topo_features.py` provides PH histograms via `ripser` and concatenation with mGLI.
+- Cache & naming: `utils/cache.py` persists intermediates and saves outputs as `物质名_方法_维度.npy`.
+
+Optional dependencies: `numba` (JIT), `torch` (GPU), `ripser` (PH).
 
 ## License / 许可证
 
