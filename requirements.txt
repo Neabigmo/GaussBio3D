@@ -1,0 +1,13 @@
+# GaussBio3D Requirements
+# GaussBio3D 依赖项
+
+# Core dependencies / 核心依赖
+numpy>=1.20.0
+biopython>=1.79
+rdkit-pypi>=2021.9.1
+
+# Optional dependencies for development / 开发可选依赖
+# pytest>=6.0
+# pytest-cov>=2.0
+# black>=21.0
+# flake8>=3.9

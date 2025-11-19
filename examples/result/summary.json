@@ -1,0 +1,36 @@
+{
+  "dti_cif_sdf": {
+    "global_feat_shape": [
+      400
+    ],
+    "prot_node_feat_shape": [
+      2189,
+      20
+    ],
+    "lig_node_feat_shape": [
+      48,
+      20
+    ],
+    "pairwise_mgli_shape": [
+      2189,
+      48
+    ]
+  },
+  "dti_pdb_sdf": {
+    "global_feat_shape": [
+      400
+    ],
+    "prot_node_feat_shape": [
+      1567,
+      20
+    ],
+    "lig_node_feat_shape": [
+      48,
+      20
+    ],
+    "pairwise_mgli_shape": [
+      1567,
+      48
+    ]
+  }
+}
