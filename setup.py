@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="gaussbio3d",
-    version="0.1.0",
+    version="0.1.1",
     author="Your Name",
     author_email="your.email@example.com",
     description="Multiscale Gauss Linking Integral Library for Biomolecular 3D Topology / 用于生物分子3D拓扑的多尺度高斯链接积分库",
@@ -37,6 +37,20 @@ setup(
         "tqdm>=4.66",
     ],
     extras_require={
+        "jit": [
+            "numba>=0.56",
+        ],
+        "gpu": [
+            "torch",
+        ],
+        "topology": [
+            "ripser>=0.6",
+        ],
+        "all": [
+            "numba>=0.56",
+            "torch",
+            "ripser>=0.6",
+        ],
         "dev": [
             "pytest>=6.0",
             "pytest-cov>=2.0",

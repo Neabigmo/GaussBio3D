@@ -240,6 +240,8 @@ This library is ready for immediate use in:
 
 **项目完成日期 / Project Completion Date**: 2025-11-16
 
-**版本 / Version**: 0.1.0
+**版本 / Version**: 0.1.1
+
+**PyPI**: https://pypi.org/project/gaussbio3d/0.1.1/
 
 **许可证 / License**: MIT

@@ -12,7 +12,7 @@ from .features.descriptor import global_mgli_descriptor
 from .features.node_features import node_mgli_features
 from .features.pairwise import pairwise_mgli_matrix
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "MgliConfig",

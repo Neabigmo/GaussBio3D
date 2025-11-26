@@ -12,6 +12,28 @@
 
 ---
 
+## 概览
+
+- 定位：基于多尺度高斯链接积分（mGLI）的三维拓扑特征库，用统一描述符刻画蛋白、配体、核酸的空间交互，服务生化机器学习的特征提取任务。
+- 三层输出：全局描述符、节点级特征、节点成对矩阵；兼容传统机器学习与深度学习（交叉注意力）。
+- 关键特性：径向模式（硬分箱/RBF）、分组模式（元素/残基/碱基）、手性符号（signed）、统计聚合（sum/mean/max/min/median）。
+- 性能选项：距离剪枝 `max_distance`、并行 `n_jobs`、可选 GPU `use_gpu`。
+
+## 目录
+
+- 1. 数学背景
+- 2. 多尺度与分组mGLI特征
+- 3. 统一几何表示
+- 4. 安装和依赖
+- 5. 基本用法
+- 6. 任务辅助工具
+- 7. 项目结构
+- 8. 注意事项
+- 8.1 性能与拓扑扩展
+- 9. 许可证
+- 10. 引用
+- 11. 联系方式
+
 ## 1. 数学背景
 
 ### 1.1 高斯链接积分（连续形式）
@@ -112,14 +134,20 @@ GaussBio3D **强制依赖 RDKit**（用于小分子 I/O：SDF/MOL2/SMILES），�
 ```bash
 conda install -c conda-forge rdkit
 pip install gaussbio3d
+# 可选特性（extras）：
+pip install "gaussbio3d[all]"               # 一键安装所有可选特性
+pip install "gaussbio3d[jit]" "gaussbio3d[gpu]" "gaussbio3d[topology]"
 pip install numba  # 可选，JIT加速
 ```
 
-若仅使用 pip 并且你的平台可用 RDKit 轮子：
+若仅使用 pip 并且你的平台可用 RDKit ：
 
 ```bash
 pip install rdkit-pypi
 pip install gaussbio3d
+# 可选特性（extras）：
+pip install "gaussbio3d[all]"
+pip install "gaussbio3d[jit]" "gaussbio3d[gpu]" "gaussbio3d[topology]"
 pip install numba  # 可选，JIT加速
 ```
 
@@ -129,6 +157,8 @@ pip install numba  # 可选，JIT加速
 git clone https://github.com/yourusername/GaussBio3D
 cd GaussBio3D
 pip install -e .
+ 
+PyPI 项目页： https://pypi.org/project/gaussbio3d/0.1.1/
 ```
 
 ---
@@ -307,9 +337,9 @@ MIT License
 ```bibtex
 @software{gaussbio3d,
   title={GaussBio3D: Multiscale Gauss Linking Integral Library for Biomolecular 3D Topology},
-  author={Your Name},
+  author={杨一横},
   year={2025},
-  url={https://github.com/yourusername/GaussBio3D}
+  url={https://github.com/neabigmo/GaussBio3D}
 }
 ```
 
@@ -319,5 +349,5 @@ MIT License
 
 如有问题或建议，请通过以下方式联系：
 
-- GitHub Issues: https://github.com/yourusername/GaussBio3D/issues
-- Email: your.email@example.com
+- GitHub Issues: https://github.com/neabigmo/GaussBio3D/issues
+- Email: yangyiheng007110@gmail.com

@@ -54,7 +54,7 @@ python
 # Try importing / 尝试导入
 >>> import gaussbio3d
 >>> print(gaussbio3d.__version__)
-0.1.0
+0.1.1
 
 >>> from gaussbio3d.molecules import Protein, Ligand
 >>> from gaussbio3d.config import MgliConfig
@@ -126,6 +126,7 @@ For Jupyter notebooks / 用于Jupyter notebooks:
 
 ```bash
 pip install jupyter ipython
+```
 
 ### GPU & Topology (Optional) / GPU与拓扑（可选）
 
@@ -144,6 +145,12 @@ pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 # Alternatively, install from optional requirements file / 或通过可选依赖文件安装
 pip install -r requirements-optional.txt
+ 
+# Or install via extras / 或使用 extras 方式安装
+pip install "gaussbio3d[all]"               # 一键安装所有可选特性
+pip install "gaussbio3d[jit]"               # 仅JIT（numba）
+pip install "gaussbio3d[topology]"          # 仅PH拓扑（ripser）
+pip install "gaussbio3d[gpu]"               # 仅GPU（torch，按环境选择CUDA/CPU索引）
 ```
 
 After installation, set in config to use these features / 安装后在配置中启用：

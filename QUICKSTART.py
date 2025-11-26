@@ -8,6 +8,12 @@ This file demonstrates the basic workflow of using GaussBio3D.
 
 # 1. Installation / 安装
 # =====================
+# PyPI install / 从PyPI安装：
+# pip install gaussbio3d
+# Optional features via extras / 可选特性（extras）：
+# pip install "gaussbio3d[all]"
+# pip install "gaussbio3d[jit]" "gaussbio3d[gpu]" "gaussbio3d[topology]"
+# Source install / 从源码安装：
 # pip install -e .
 # Or install dependencies separately / 或分别安装依赖项:
 # pip install numpy biopython rdkit-pypi

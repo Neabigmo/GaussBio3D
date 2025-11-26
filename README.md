@@ -190,6 +190,13 @@ Recommended installation on Windows/macOS/Linux via Conda（推荐方式）：
 ```bash
 conda install -c conda-forge rdkit
 pip install gaussbio3d
+# Extras (optional features) / 可选特性（extras）
+# 一键安装全部可选特性
+pip install "gaussbio3d[all]"
+# 或分别安装：JIT/GPU/PH拓扑
+pip install "gaussbio3d[jit]"     # numba
+pip install "gaussbio3d[gpu]"     # torch（按环境选择CUDA/CPU索引）
+pip install "gaussbio3d[topology]" # ripser
 pip install numba  # optional JIT acceleration
 ```
 
@@ -199,6 +206,9 @@ If you prefer pip-only and have an RDKit wheel available for your platform:
 ```bash
 pip install rdkit-pypi
 pip install gaussbio3d
+# Extras（extras 可选特性）：
+pip install "gaussbio3d[all]"
+pip install "gaussbio3d[jit]" "gaussbio3d[gpu]" "gaussbio3d[topology]"
 pip install numba  # optional JIT acceleration
 ```
 
@@ -221,8 +231,9 @@ pip install -e .
 - 推荐安装：
   - Conda 安装 RDKit：`conda install -c conda-forge rdkit`
   - 安装包：`pip install gaussbio3d`
-  - 可选加速：`pip install numba`（CPU JIT）、`pip install ripser`（PH）、`pip install torch`（GPU，按环境选择 CUDA/CPU 索引）。
-- 源码安装：
+  - extras 一键安装可选特性：`pip install "gaussbio3d[all]"`
+  - 或分别安装：`pip install "gaussbio3d[jit]"`（CPU JIT）、`pip install "gaussbio3d[topology]"`（PH）、`pip install "gaussbio3d[gpu]"`（GPU，按环境选择 CUDA/CPU 索引）。
+  - 源码安装：
   ```bash
   git clone https://github.com/yourusername/GaussBio3D
   cd GaussBio3D
@@ -230,6 +241,8 @@ pip install -e .
   # 可选特性一键安装
   pip install -r GaussBio3D/requirements-optional.txt
   ```
+
+PyPI / 项目页： https://pypi.org/project/gaussbio3d/0.1.1/
 
 ### Core Methods & Scenarios / 核心方法与适用场景
 
