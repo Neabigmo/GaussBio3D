@@ -58,4 +58,9 @@ setup(
             "flake8>=3.9",
         ],
     },
+    entry_points={
+        "console_scripts": [
+            "gaussbio3d=gaussbio3d.cli:main",
+        ]
+    },
 )

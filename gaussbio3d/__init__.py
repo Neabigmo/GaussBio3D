@@ -11,6 +11,12 @@ from .core.gli import gli_segment, gli_curves
 from .features.descriptor import global_mgli_descriptor
 from .features.node_features import node_mgli_features
 from .features.pairwise import pairwise_mgli_matrix
+from .presets import (
+    flexibility_mgli_pipeline,
+    compute_bfactor_mgli,
+    default_dti_mgli_pipeline,
+    compute_pl_complex_mgli,
+)
 
 __version__ = "0.1.1"
 
@@ -25,4 +31,8 @@ __all__ = [
     "global_mgli_descriptor",
     "node_mgli_features",
     "pairwise_mgli_matrix",
+    "flexibility_mgli_pipeline",
+    "compute_bfactor_mgli",
+    "default_dti_mgli_pipeline",
+    "compute_pl_complex_mgli",
 ]

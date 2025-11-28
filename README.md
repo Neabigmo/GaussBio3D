@@ -459,9 +459,36 @@ dti_feats = compute_dti_features(
 
 ---
 
- 
+## 7. Library Usage Guide / 库调用指南
 
-## 8. Project Structure / 项目结构
+- EN: See detailed, bilingual usage guide in `USAGE.md` (how to load structures, configure mGLI, compute descriptors, use presets and pipeline).
+- CN: 详细的中英双语使用指南请见 `USAGE.md`（如何加载结构、配置 mGLI、计算特征、使用预设与流水线）。
+
+## 8. Command-Line Usage / 命令行使用
+
+- EN: After installation, a console script `gaussbio3d` is available.
+  - Protein–Ligand descriptor:
+    - `gaussbio3d compute --mode pl --protein protein.pdb --ligand ligand.sdf --out pl.npy`
+  - Protein flexibility descriptor:
+    - `gaussbio3d compute --mode protein-flex --protein protein.cif --chain A --out flex.npy`
+  - Options:
+    - `--protein <path>` PDB/mmCIF path
+    - `--ligand <path>` SDF path
+    - `--chain <ID>` chain selection for proteins
+    - `--out <path>` output `.npy` file
+
+- CN: 安装后可用命令 `gaussbio3d`。
+  - 蛋白–配体特征：
+    - `gaussbio3d compute --mode pl --protein protein.pdb --ligand ligand.sdf --out pl.npy`
+  - 蛋白柔性特征：
+    - `gaussbio3d compute --mode protein-flex --protein protein.cif --chain A --out flex.npy`
+  - 主要参数：
+    - `--protein <路径>` PDB/mmCIF 文件
+    - `--ligand <路径>` SDF 文件
+    - `--chain <ID>` 蛋白链选择
+    - `--out <路径>` 输出 `.npy` 文件
+
+## 9. Project Structure / 项目结构
 
 ```
 GaussBio3D/
@@ -495,7 +522,7 @@ GaussBio3D/
 
 ---
 
-## Performance & Topology Extensions / 性能与拓扑扩展
+## 10. Performance & Topology Extensions / 性能与拓扑扩展
 
 - Distance pruning: set `MgliConfig.max_distance` to mask far pairs.
 - Parallel rows: set `MgliConfig.n_jobs` for thread-based parallel over nodes.
